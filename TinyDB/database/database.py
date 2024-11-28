@@ -29,6 +29,33 @@ class Database(metaclass=SingletonMeta):
         else:
             raise ValueError(f"Table {table_name} does not exist.")
 
+        def join(self, table1_name, table2_name, join_attr):
+            """Объединение двух таблиц по указанному атрибуту."""
+            table1 = self.tables[table1_name].data
+            table2 = self.tables[table2_name].data
+
+            result = []
+            for row1 in table1:
+                for row2 in table2:
+                    if row1[join_attr] == row2['id']:
+                        merged = {**row1, **row2}
+                        result.append(merged)
+            return result
+
+        def aggregate(self, data, field, agg_func):
+            """Агрегатная функция."""
+            values = [float(row[field]) for row in data if row[field].isdigit()]
+            if agg_func == "AVG":
+                return sum(values) / len(values) if values else 0
+            elif agg_func == "MAX":
+                return max(values) if values else None
+            elif agg_func == "MIN":
+                return min(values) if values else None
+            elif agg_func == "COUNT":
+                return len(values)
+            else:
+                raise ValueError(f"Unknown aggregate function: {agg_func}")
+
     def select(self, table_name, *args):
         table = self.tables.get(table_name)
         return table.select(*args) if table else None
@@ -57,7 +84,10 @@ class Table(ABC):
 
     @abstractmethod
     def insert(self, data):
-        pass
+        entry = dict(zip(self.ATTRS, data.split()))
+        self.validate_unique(entry, unique_keys=['id'])  # Проверка уникальности по id
+        self.data.append(entry)
+        self.save()
 
     @abstractmethod
     def select(self, *args):
@@ -89,6 +119,44 @@ class EmployeeTable(Table):
 
     def select(self, start_id, end_id):
         return [entry for entry in self.data if start_id <= int(entry['id']) <= end_id]
+
+    def save(self):
+        with open(self.FILE_PATH, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=self.ATTRS)
+            writer.writeheader()
+            writer.writerows(self.data)
+
+    def load(self):
+        if os.path.exists(self.FILE_PATH):
+            with open(self.FILE_PATH, 'r') as f:
+                reader = csv.DictReader(f)
+                self.data = [row for row in reader]
+        else:
+            self.data = []
+
+
+class GoodsTable(Table):
+    """Таблица товаров с методами ввода-вывода в CSV."""
+    ATTRS = ('id', 'name', 'price', 'department_id')
+    FILE_PATH = 'goods_table.csv'
+
+    def __init__(self):
+        self.data = []
+        self.load()
+
+    def insert(self, data):
+        entry = dict(zip(self.ATTRS, data.split()))
+        if any(e['id'] == entry['id'] for e in self.data):
+            raise ValueError(f"Duplicate entry with id {entry['id']}")
+        self.data.append(entry)
+        self.save()
+
+    def select(self, **conditions):
+        """Фильтрует данные по переданным условиям."""
+        return [
+            entry for entry in self.data
+            if all(entry[k] == str(v) for k, v in conditions.items())
+        ]
 
     def save(self):
         with open(self.FILE_PATH, 'w', newline='') as f:

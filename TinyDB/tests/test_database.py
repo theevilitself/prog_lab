@@ -89,3 +89,26 @@ def test_join_employees_departments(database):
     ]
     assert join_result == expected_result
 
+    def test_complex_query(database):
+        database.insert("employees", "1 Alice 30 70000 101")
+        database.insert("employees", "2 Bob 28 60000 102")
+        database.insert("departments", "101 HR")
+        database.insert("departments", "102 IT")
+        database.insert("goods", "1 Laptop 1200 101")
+        database.insert("goods", "2 Mouse 25 101")
+        database.insert("goods", "3 Keyboard 50 102")
+
+        # JOIN employees -> departments -> goods
+        emp_dept = database.join("employees", "departments", "department_id")
+        full_join = database.join("goods", emp_dept, "department_id")
+
+        # Aggregate query
+        avg_price = database.aggregate(full_join, "price", "AVG")
+        max_price = database.aggregate(full_join, "price", "MAX")
+        count_goods = database.aggregate(full_join, "price", "COUNT")
+
+        assert avg_price == 425.0
+        assert max_price == 1200.0
+        assert count_goods == 3
+
+
