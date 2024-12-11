@@ -1,8 +1,11 @@
-#!/usr/bin/python3
-from random import randint
+#!/usr/bin/env python3
+import random
 
-def main():
-    a = randint(-10, 10)
-    print(a)
+try:
+    A = random.randint(-10, 10)
 
-main()
+    print(A)
+
+except Exception as e:
+    import sys
+    print(f"Произошла ошибка: {e}", file=sys.stderr)

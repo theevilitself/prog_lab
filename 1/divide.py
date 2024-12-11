@@ -1,16 +1,28 @@
-#!/usr/bin/python3
-from random import randint
+#!/usr/bin/env python3
+import random
+import sys
 
-def main():
+try:
+    input_value = sys.stdin.read().strip()
+
     try:
-        a = int(input())
-        b = randint(-10, 10)
+        A = float(input_value)
+    except ValueError:
+        raise ValueError("Получено некорректное число из stdin.")
 
-        res = a / b
-        print(res)
+    B = random.uniform(-10, 10)
 
-    except (ZeroDivisionError, ValueError) as exception:
-        with open("error.txt", "a") as file:
-            file.write(exception)
+    if B == 0:
+        raise ZeroDivisionError("Деление на ноль невозможно.")
 
-    main()
+    result = A / B
+    print(result)
+
+except ValueError as ve:
+    print(f"Ошибка ввода: {ve}", file=sys.stderr)
+
+except ZeroDivisionError as zde:
+    print(f"Ошибка: {zde}", file=sys.stderr)
+
+except Exception as e:
+    print(f"Произошла неожиданная ошибка: {e}", file=sys.stderr)
