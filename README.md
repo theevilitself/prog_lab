@@ -1,5 +1,7 @@
 ## ЛР1
-```shell
+Комманда запуска
+shell
+```
 ./random_num.py | ./divide.py | ./sqrt.py
 ```
 ___
@@ -10,7 +12,8 @@ ___
 
 __Пример 1__
 
-```shell
+shell
+```
 tei@TEI-LINUX:~/prog/2$ ./greeting.py
 Hey, what's your name?
 Simon
@@ -22,16 +25,17 @@ Hey, what's your name?
 ^C
 Goodbye!
 ```
+__Пример 2__
 
-
-
-```shell
+shell
+```
 tei@TEI-LINUX:~/prog/2$ ./greeting.py < names.txt 2> err.txt
 Nice to see you, Jack!
 Nice to see you, Alex!
 ```
 
-``` err.txt
+err.txt
+``` 
 Error: Name 'sonya' needs to start in uppercase!
 Error: Name 'Hfiuyi899r9-ujfl' contains invalid characters: 8, 9, 9, 9, -
 ```
