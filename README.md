@@ -1,5 +1,6 @@
 ## ЛР1
 Комманда запуска
+
 shell
 ```
 ./random_num.py | ./divide.py | ./sqrt.py
